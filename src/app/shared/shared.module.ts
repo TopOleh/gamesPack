@@ -1,12 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { HeaderComponent, PageNotFoundComponent } from './components';
 
 @NgModule({
-  declarations: [PageNotFoundComponent],
+  declarations: [PageNotFoundComponent, HeaderComponent],
   imports: [
     CommonModule
-  ]
+  ],
+  exports: [HeaderComponent]
 })
 export class SharedModule { }

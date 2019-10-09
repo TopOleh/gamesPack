@@ -1,1 +1,20 @@
-<p>games-board works!</p>
+<section class="games-board">
+  <nav>
+    <ul>
+      <li routerLinkActive='active'>
+        <a routerLink="./tic-tac-toe">Tic Tac Toe</a>
+      </li>
+      <li routerLinkActive='active'>
+        <a routerLink="./tetris">Tetris</a>
+      </li>
+      <li routerLinkActive='active'>
+        <a routerLink="./snake">Snake</a>
+      </li>
+      <li routerLinkActive='active'>
+        <a routerLink="./2048">2048</a>
+      </li>
+    </ul>
+  </nav>
+
+  <router-outlet></router-outlet>
+</section>
