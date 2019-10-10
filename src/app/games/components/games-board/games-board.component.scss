@@ -1,0 +1,21 @@
+@import 'src/assets/variables.scss';
+
+.games-board__list {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 20px 0;
+}
+
+.games-board__list-item {
+  padding: 10px;
+
+  &.active {
+    border-bottom: $border-purple-color;
+  }
+}
+
+.games-board__list-item-link {
+  text-decoration: none;
+}
