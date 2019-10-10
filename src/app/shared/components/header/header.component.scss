@@ -1,6 +1,8 @@
+@import 'src/assets/variables';
+
 .games-header {
-  background-color: #aa64ea;
-  color: white;
+  background-color: $second-bg-color;
+  color: $white-font-color;
   padding: 20px 0;
   text-align: center;
 }

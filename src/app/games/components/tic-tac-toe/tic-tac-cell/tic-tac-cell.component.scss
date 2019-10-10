@@ -1,0 +1,10 @@
+@import 'src/assets/variables';
+
+.games__tic-cell {
+  border: $border-purple-color;
+  padding: 49px;
+
+  &:hover {
+    background-color: $lightblue-hover-color;
+  }
+}

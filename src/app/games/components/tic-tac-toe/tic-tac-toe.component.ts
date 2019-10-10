@@ -6,10 +6,13 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./tic-tac-toe.component.scss']
 })
 export class TicTacToeComponent implements OnInit {
+  table: string[] = new Array(9);
 
   constructor() { }
 
   ngOnInit() {
+    this.table.fill('');
+    console.log('this.table :', this.table);
   }
 
 }
