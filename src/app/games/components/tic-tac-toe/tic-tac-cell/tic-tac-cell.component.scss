@@ -1,8 +1,13 @@
 @import 'src/assets/variables';
 
 .games__tic-cell {
+  cursor: pointer;
   border: $border-purple-color;
-  padding: 49px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  width: 100px;
 
   &:hover {
     background-color: $lightblue-hover-color;

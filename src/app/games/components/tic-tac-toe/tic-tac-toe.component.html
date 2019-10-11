@@ -1,6 +1,22 @@
-<section class="games__tic">
-  <ng-container *ngFor="let cell of table">
-    <app-tic-tac-cell></app-tic-tac-cell>
+<h2 class="games__tic-title">
+  <ng-container *ngIf="winner; else elseTemplate">
+    Player {{ winner }} won the game.
   </ng-container>
+  <ng-template #elseTemplate>
+    Current player: {{ player }}
+  </ng-template>
+</h2>
 
-</section>
+<h2 *ngIf="!winner"></h2>
+<h2 *ngIf="winner"></h2>
+<button class="games__tic-button" (click)="startGame()">Start new Game</button>
+
+<main>
+  <section class="games__tic">
+    <div class="games__tic-board">
+      <app-tic-tac-cell *ngFor="let square of squares; let i = index" [value]="square" (click)="makeMove(i)">
+      </app-tic-tac-cell>
+    </div>
+  </section>
+
+</main>
