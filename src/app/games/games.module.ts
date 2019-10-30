@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 
 import { GamesRoutingModule } from './games-routing.module';
 
-import { GamesBoardComponent, TicTacToeComponent, GameNotFoundComponent, TicTacCellComponent } from './components';
+import { GamesBoardComponent, TicTacCellComponent } from './components';
 
 @NgModule({
-  declarations: [GamesBoardComponent, TicTacToeComponent, GameNotFoundComponent, TicTacCellComponent],
+  declarations: [GamesBoardComponent, TicTacCellComponent, GamesRoutingModule.components],
   imports: [
     CommonModule,
     GamesRoutingModule
