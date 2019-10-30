@@ -1,4 +1,4 @@
 export interface Snake {
-  head: number;
-  tile: number[];
+  tail: Array<{ idx: number }>;
+  moveDirection: number;
 }
