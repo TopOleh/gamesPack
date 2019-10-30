@@ -19,4 +19,6 @@ const routes: Routes = [
   ],
   exports: [RouterModule]
 })
-export class GamesRoutingModule { }
+export class GamesRoutingModule {
+  static components = [GamesBoardComponent, TicTacToeComponent, GameNotFoundComponent, SnakeComponent];
+}
