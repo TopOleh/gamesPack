@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-twenty-forty-eight',
   templateUrl: './twenty-forty-eight.component.html',
   styleUrls: ['./twenty-forty-eight.component.scss']
 })
-export class TwentyFortyEightComponent implements OnInit {
+export class TwentyFortyEightComponent {
   boardSize = 3;
   borderSize = 1;
   cellSize = 50;
@@ -13,11 +13,6 @@ export class TwentyFortyEightComponent implements OnInit {
   showBoard = false;
   initialCell = { number: 0 };
   board: Array<{ number: 0 }>;
-
-  constructor() { }
-
-  ngOnInit() {
-  }
 
   startGame() {
     this.gameStart = true;
@@ -32,6 +27,6 @@ export class TwentyFortyEightComponent implements OnInit {
   setBoardStyle() {
     return {
       width: Math.sqrt(this.boardSize) * this.cellSize + this.borderSize + 'px'
-    }
+    };
   }
 }

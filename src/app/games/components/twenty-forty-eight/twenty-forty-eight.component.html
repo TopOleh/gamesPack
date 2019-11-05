@@ -1,13 +1,12 @@
-<section class="tfe">
-  <h1>Twenty Forty Eight</h1>
-  <div *ngIf="!gameStart" >
-    <button (click)="startGame()" >New Game</button>
-  </div>
+<h1 class="tfe__title">Twenty Forty Eight</h1>
 
+<app-start-game-btn *ngIf="!gameStart" (startGame)="startGame()">Start new game</app-start-game-btn>
+
+<section class="tfe">
   <div *ngIf="gameStart && !showBoard">
-    <label for="tfe-board-size__input">Enter the box size: {{boardSize}}x{{boardSize}}</label>
+    <label for="tfe-board-size__input" class="tfe-board-size__label">Enter the box size: {{boardSize}}x{{boardSize}}</label>
     <input id="tfe-board-size__input" type="number" [(ngModel)]="boardSize" />
-    <button (click)="buildBoard(boardSize)">Start</button>
+    <button class="tfe-board-size__apply" (click)="buildBoard(boardSize)">Apply</button>
   </div>
 
   <table *ngIf="showBoard" class="tfe-board" [ngStyle]="setBoardStyle()">
