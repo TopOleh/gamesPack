@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
+
+import { DIRECTIONS } from 'src/app/shared';
 
 @Component({
   selector: 'app-twenty-forty-eight',
@@ -12,7 +14,14 @@ export class TwentyFortyEightComponent {
   gameStart = false;
   showBoard = false;
   initialCell = { number: 0 };
-  board: Array<{ number: 0 }>;
+  board: Array<{ number: number }>;
+
+  @HostListener('document:keydown', ['$event.keyCode'])
+  addMoveListener(direction: number) {
+    if (DIRECTIONS.RIGHT === direction) {
+      console.log('RIGHT')
+    }
+  }
 
   startGame() {
     this.gameStart = true;
@@ -22,6 +31,17 @@ export class TwentyFortyEightComponent {
     this.boardSize = Math.pow(size, 2);
     this.board = new Array(this.boardSize).fill(this.initialCell);
     this.showBoard = true;
+
+    this.setNumber();
+  }
+
+  generateRandomNumber(): number {
+    return Math.random() >= 0.5 ? 2 : 4;
+  }
+
+  setNumber() {
+    const placeOnBoard = Math.floor(Math.random() * this.board.length);
+    this.board[placeOnBoard] = { number: this.generateRandomNumber() };
   }
 
   setBoardStyle() {
