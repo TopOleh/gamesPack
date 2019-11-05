@@ -5,18 +5,12 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './tic-tac-toe.component.html',
   styleUrls: ['./tic-tac-toe.component.scss']
 })
-export class TicTacToeComponent implements OnInit {
+export class TicTacToeComponent {
   squares: string[];
   xIsNext: boolean;
   winner: string;
 
-  constructor() { }
-
-  ngOnInit() {
-    this.startGame();
-  }
-
-  startGame(): void {
+  startNewGame(): void {
     this.squares = new Array(9).fill(null);
     this.winner = null;
     this.xIsNext = true;
@@ -26,8 +20,8 @@ export class TicTacToeComponent implements OnInit {
     return this.xIsNext ? 'X' : 'O';
   }
 
-  makeMove(idx: number): void {
-    if (!this.squares[idx]) {
+  makeMove(idx: number) {
+    if (!this.squares[idx] && !this.winner) {
       this.squares.splice(idx, 1, this.player);
       this.xIsNext = !this.xIsNext;
     }

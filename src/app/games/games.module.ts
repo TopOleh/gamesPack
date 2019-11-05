@@ -5,9 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { GamesRoutingModule } from './games-routing.module';
 
 import { GamesBoardComponent, TicTacCellComponent } from './components';
+import { StartGameBtnComponent } from './../shared/';
 
 @NgModule({
-  declarations: [GamesBoardComponent, TicTacCellComponent, GamesRoutingModule.components],
+  declarations: [GamesBoardComponent, TicTacCellComponent, StartGameBtnComponent, GamesRoutingModule.components],
   imports: [
     CommonModule,
     FormsModule,
