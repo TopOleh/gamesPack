@@ -9,7 +9,8 @@
 
 <h2 *ngIf="!winner"></h2>
 <h2 *ngIf="winner"></h2>
-<button class="games__tic-button" (click)="startGame()">Start new Game</button>
+
+<app-start-game-btn (startGame)="startNewGame()"></app-start-game-btn>
 
 <main>
   <section class="games__tic">

@@ -1,0 +1,13 @@
+@import 'src/assets/variables';
+
+.games__start-button {
+  cursor: pointer;
+  background-color: $second-bg-color;
+  border: none;
+  border-radius: 50%;
+  color: $white-font-color;
+  outline: none;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  padding: 10px;
+}
