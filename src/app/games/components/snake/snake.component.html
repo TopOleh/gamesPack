@@ -1,0 +1,12 @@
+<section class="games-snake__board" *ngIf="gameStarted">
+  <div class="games-snake__cell" *ngFor="let cell of board" [ngStyle]="setSnakeStyle(cell)"></div>
+</section>
+
+<section>
+  <div>
+    <div>
+      <button *ngIf="!gameStarted" (click)="startGame()">Start new game</button>
+    </div>
+    <p>Your score is : <b>{{snake?.eatPoints}}</b></p>
+  </div>
+</section>
