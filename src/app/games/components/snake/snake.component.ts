@@ -15,7 +15,7 @@ export class SnakeComponent implements OnDestroy {
   initialCell: SnakeCell = { isSnakeTail: false, isApple: false };
   board: SnakeCell[] = new Array(this.size * this.size).fill(this.initialCell);
   snake: Snake;
-  moveInterval: Observable<number> = interval(900);
+  moveInterval: Observable<number> = interval(1000);
   subscription: Subscription;
 
   ngOnDestroy(): void {
@@ -26,7 +26,7 @@ export class SnakeComponent implements OnDestroy {
     this.snake = {
       tail: [{ idx: 0 }, { idx: 1 }, { idx: 2 }],
       moveDirection: Directions.RIGHT,
-      eatPoints: 0
+      eatPoints: 1
     };
     this.setSnake();
     this.setFruit();
@@ -95,6 +95,11 @@ export class SnakeComponent implements OnDestroy {
     const newTail = { idx: this.snake.tail[0].idx - 1 };
     this.snake.tail.unshift(newTail);
     this.snake.eatPoints += 1;
+
+    const intervalTime = this.snake.eatPoints < 10 ? 1050 - this.snake.eatPoints * 100 : 50;
+    this.subscription.unsubscribe();
+    this.moveInterval = interval(intervalTime);
+    this.subscription = this.moveInterval.subscribe(() => this.snakeMove(this.snake));
   }
 
   eatTail(): boolean {
