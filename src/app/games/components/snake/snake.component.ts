@@ -19,7 +19,9 @@ export class SnakeComponent implements OnDestroy {
   subscription: Subscription;
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   startGame(): void {
