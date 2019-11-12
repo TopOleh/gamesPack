@@ -52,64 +52,30 @@ export class TwentyFortyEightComponent {
       return acc;
     }, []);
 
+    // groupedArr.map((row) => row.filter((cell) => cell.cellNumber !== 0));
 
-    switch (direction) {
-      case DIRECTIONS.RIGHT:
-        groupedArr = this.onLeftRightDirection(groupedArr);
-        break;
-      case DIRECTIONS.LEFT:
-        groupedArr = this.onLeftRightDirection(groupedArr).map((row: TwentyFortyEightCell[]) => row.reverse());
-        break;
-      case DIRECTIONS.UP:
-        groupedArr = this.onUpDownDirection(groupedArr).reverse();
-        break;
-      case DIRECTIONS.DOWN:
-        groupedArr = this.onUpDownDirection(groupedArr);
-        break;
-    }
-
+    const zeroRemoved = groupedArr.map((row) => row.filter((cell) => cell.cellNumber !== 0));
+    zeroRemoved.map((row) => {
+      for (let i = 0; i < row.length; i++) {
+        const cell = row[i];
+        const nextCell = row[i + 1];
+        if (nextCell && cell.cellNumber === nextCell.cellNumber) {
+          nextCell.cellNumber += cell.cellNumber;
+          cell.cellNumber = 0;
+          break;
+        }
+      }
+    })
+    groupedArr = zeroRemoved.map((row) => {
+      while (row.length < zeroRemoved.length) {
+        row.unshift(new TwentyFortyEightCell());
+      }
+      return row;
+    });
+    console.log(zeroRemoved);
+    console.log(groupedArr);
     this.board = groupedArr.reduce((newBoard: TwentyFortyEightCell[], row: TwentyFortyEightCell[]) => newBoard.concat(row), []);
     this.setNumber();
-  }
-
-  onUpDownDirection(arr): Array<TwentyFortyEightCell[]> {
-    arr.forEach((row: TwentyFortyEightCell[], rowIndex: number, rows: Array<TwentyFortyEightCell[]>) => {
-      const nextRow = rows[rowIndex + 1];
-      row.forEach((cell: TwentyFortyEightCell, cellIndex: number, cells: TwentyFortyEightCell[]) => {
-        if (nextRow) {
-          if (nextRow[cellIndex].cellNumber === 0) {
-            nextRow[cellIndex].cellNumber = cell.cellNumber;
-            cell.cellNumber = 0;
-          } else if (nextRow[cellIndex].cellNumber === cell.cellNumber) {
-            nextRow[cellIndex].cellNumber += cell.cellNumber;
-            cell.cellNumber = 0;
-          }
-        }
-      });
-    });
-
-    return arr;
-  }
-
-  onLeftRightDirection(arr): Array<TwentyFortyEightCell[]> {
-    arr.forEach((row: TwentyFortyEightCell[], rowIndex: number, rows: Array<TwentyFortyEightCell[]>) => {
-      row.forEach((cell: TwentyFortyEightCell, cellIndex: number, cells: TwentyFortyEightCell[]) => {
-        const nextCell: TwentyFortyEightCell = cells[cellIndex + 1];
-
-        if (nextCell) {
-
-          if (nextCell.cellNumber === 0) {
-            nextCell.cellNumber = cell.cellNumber;
-            cell.cellNumber = 0;
-          } else if (nextCell.cellNumber === cell.cellNumber) {
-            nextCell.cellNumber += cell.cellNumber;
-            cell.cellNumber = 0;
-          }
-        }
-      });
-    });
-
-    return arr;
   }
 
   // TODO: remove, For testing
@@ -139,9 +105,8 @@ export class TwentyFortyEightComponent {
 
   setNumber(): void {
     const placeOnBoard = Math.floor(Math.random() * this.board.length);
-    // TODO: use commented, For testing
     if (this.board[placeOnBoard].cellNumber !== 0) {
-      this.setNumber();
+      return this.setNumber();
     }
     this.board[placeOnBoard] = new TwentyFortyEightCell(this.generateRandomNumber());
   }
