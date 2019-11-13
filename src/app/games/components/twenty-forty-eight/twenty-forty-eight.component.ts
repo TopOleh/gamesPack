@@ -1,3 +1,4 @@
+import { Directions } from './../snake/interfaces/directions';
 import { Component, HostListener } from '@angular/core';
 
 import { DIRECTIONS } from 'src/app/shared';
@@ -28,21 +29,23 @@ export class TwentyFortyEightComponent {
   addMoveListener(direction: number): void {
     switch (direction) {
       case DIRECTIONS.RIGHT:
-        this.makeMove(direction);
+        this.makeMoveLeftRight(direction);
         break;
       case DIRECTIONS.LEFT:
-        this.makeMove(direction);
+        this.makeMoveLeftRight(direction);
         break;
       case DIRECTIONS.UP:
-        this.makeMove(direction);
+        this.makeMoveUpDown(direction);
         break;
       case DIRECTIONS.DOWN:
-        this.makeMove(direction);
+        this.makeMoveUpDown(direction);
         break;
     }
   }
 
-  makeMove(direction: number): void {
+
+  // TODO : DO NOT WORK
+  makeMoveUpDown(direction: number) {
     let groupedArr: Array<TwentyFortyEightCell[]> = this.board.reduce((acc, cell, index, arr) => {
       if (index % this.rowSize === 0) {
         acc.push([cell]);
@@ -52,10 +55,52 @@ export class TwentyFortyEightComponent {
       return acc;
     }, []);
 
-    // groupedArr.map((row) => row.filter((cell) => cell.cellNumber !== 0));
 
-    const zeroRemoved = groupedArr.map((row) => row.filter((cell) => cell.cellNumber !== 0));
+    groupedArr.map((row, index, rows) => {
+      const nextRow = rows[index + 1];
+
+      for (let i = 0; i < row.length; i++) {
+        const cell = row[i];
+
+        if (nextRow) {
+          if (nextRow[i].cellNumber === 0) {
+            nextRow[i].cellNumber = cell.cellNumber;
+            cell.cellNumber = 0;
+          } else if (nextRow[i].cellNumber === cell.cellNumber) {
+            nextRow[i].cellNumber += cell.cellNumber;
+            cell.cellNumber = 0;
+            break;
+          }
+        }
+      }
+    });
+
+    if (direction === Directions.UP) {
+      groupedArr = groupedArr.reverse();
+    }
+    // if (direction === Directions.DOWN) {
+    //   groupedArr = groupedArr.reverse();
+    // }
+
+    this.board = groupedArr.reduce((newBoard: TwentyFortyEightCell[], row: TwentyFortyEightCell[]) => newBoard.concat(row), []);
+    this.setNumber();
+  }
+
+  makeMoveLeftRight(direction: number): void {
+    let groupedArr: Array<TwentyFortyEightCell[]> = this.board.reduce((acc, cell, index, arr) => {
+      if (index % this.rowSize === 0) {
+        acc.push([cell]);
+      } else {
+        acc[acc.length - 1].push(cell);
+      }
+      return acc;
+    }, []);
+
+    let zeroRemoved = groupedArr.map((row) => row.filter((cell) => cell.cellNumber !== 0));
     zeroRemoved.map((row) => {
+      if (direction === Directions.RIGHT) {
+        row = row.reverse();
+      }
       for (let i = 0; i < row.length; i++) {
         const cell = row[i];
         const nextCell = row[i + 1];
@@ -65,15 +110,20 @@ export class TwentyFortyEightComponent {
           break;
         }
       }
-    })
+    });
+    zeroRemoved = groupedArr.map((row) => row.filter((cell) => cell.cellNumber !== 0));
     groupedArr = zeroRemoved.map((row) => {
       while (row.length < zeroRemoved.length) {
         row.unshift(new TwentyFortyEightCell());
       }
+
       return row;
     });
-    console.log(zeroRemoved);
-    console.log(groupedArr);
+
+    if (direction === Directions.LEFT) {
+      groupedArr.forEach((row) => row.reverse());
+    }
+
     this.board = groupedArr.reduce((newBoard: TwentyFortyEightCell[], row: TwentyFortyEightCell[]) => newBoard.concat(row), []);
     this.setNumber();
   }
