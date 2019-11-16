@@ -3,3 +3,4 @@ export * from './games-board/games-board.component';
 export * from './snake/snake.component';
 export * from './tic-tac-toe/tic-tac-toe.component';
 export * from './tic-tac-toe/tic-tac-cell/tic-tac-cell.component';
+export * from './twenty-forty-eight/twenty-forty-eight.component';
