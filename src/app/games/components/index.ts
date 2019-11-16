@@ -4,3 +4,4 @@ export * from './snake/snake.component';
 export * from './tetris/tetris.component';
 export * from './tic-tac-toe/tic-tac-toe.component';
 export * from './tic-tac-toe/tic-tac-cell/tic-tac-cell.component';
+export * from './twenty-forty-eight/twenty-forty-eight.component';
