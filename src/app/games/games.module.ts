@@ -5,9 +5,10 @@ import { GamesRoutingModule } from './games-routing.module';
 
 import { GamesBoardComponent, TicTacCellComponent } from './components';
 import { StartGameBtnComponent } from './../shared/';
+import { TetrisComponent } from './components/tetris/tetris.component';
 
 @NgModule({
-  declarations: [GamesBoardComponent, TicTacCellComponent, StartGameBtnComponent, GamesRoutingModule.components],
+  declarations: [GamesBoardComponent, TicTacCellComponent, StartGameBtnComponent, GamesRoutingModule.components, TetrisComponent],
   imports: [
     CommonModule,
     GamesRoutingModule
