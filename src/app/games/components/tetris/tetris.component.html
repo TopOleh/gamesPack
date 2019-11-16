@@ -1,1 +1,19 @@
-<app-start-game-btn (startGame)="startNewGame()"></app-start-game-btn>
+<h1 class="tfe__title">Tetris</h1>
+
+<app-start-game-btn *ngIf="!gameStart" (startGame)="startNewGame()">Start new game</app-start-game-btn>
+
+<section class="tfe">
+  <div *ngIf="gameStart && !showBoard">
+    <label for="tfe-board-size__input" class="tfe-board-size__label">Enter the box size:
+      {{boardSize}}x{{boardSize}}</label>
+    <input id="tfe-board-size__input" type="number" [(ngModel)]="boardSize" />
+    <button class="tfe-board-size__apply" (click)="buildBoard(boardSize)">Apply</button>
+  </div>
+
+  <table *ngIf="showBoard" class="tfe-board" [ngStyle]="setBoardStyle()">
+    <td class="tfe-board__cell" *ngFor="let cell of board">
+      <div class="tfe-board__cell-number">{{ cell.cellNumber }}</div>
+    </td>
+  </table>
+
+</section>
