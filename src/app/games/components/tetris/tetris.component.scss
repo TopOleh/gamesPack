@@ -44,6 +44,32 @@
     &-number {
       margin-top: 50%;
       transform: translateY(-50%);
+      color: #ffffff;
+
+      &.STRAIGHT {
+        background-color: #0000ff;
+        color: #0000ff;
+      }
+
+      &.SIGMA {
+        background-color: #8a2be2;
+        color: #8a2be2;
+      }
+
+      &.THREEENDS {
+        background-color: #2be22b;
+        color: #2be22b;
+      }
+
+      &.GTYPE {
+        background-color: #f05209;
+        color: #f05209;
+      }
+
+      &.KUBE {
+        background-color: #c9ff05;
+        color: #c9ff05;
+      }
     }
   }
 }

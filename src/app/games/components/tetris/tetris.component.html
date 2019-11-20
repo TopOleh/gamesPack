@@ -12,7 +12,7 @@
 
   <table *ngIf="showBoard" class="tfe-board" [ngStyle]="setBoardStyle()">
     <td class="tfe-board__cell" *ngFor="let cell of board">
-      <div class="tfe-board__cell-number">{{ cell.cellNumber }}</div>
+      <div class="tfe-board__cell-number" [ngClass]="cell.type">{{ cell.cellNumber }}</div>
     </td>
   </table>
 

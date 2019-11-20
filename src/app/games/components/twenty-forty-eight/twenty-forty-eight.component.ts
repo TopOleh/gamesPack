@@ -9,7 +9,6 @@ class TwentyFortyEightCell {
   }
 }
 
-
 @Component({
   selector: 'app-twenty-forty-eight',
   templateUrl: './twenty-forty-eight.component.html',
@@ -52,8 +51,6 @@ export class TwentyFortyEightComponent {
       return acc;
     }, []);
 
-    // groupedArr.map((row) => row.filter((cell) => cell.cellNumber !== 0));
-
     const zeroRemoved = groupedArr.map((row) => row.filter((cell) => cell.cellNumber !== 0));
     zeroRemoved.map((row) => {
       for (let i = 0; i < row.length; i++) {
@@ -65,7 +62,8 @@ export class TwentyFortyEightComponent {
           break;
         }
       }
-    })
+    });
+
     groupedArr = zeroRemoved.map((row) => {
       while (row.length < zeroRemoved.length) {
         row.unshift(new TwentyFortyEightCell());
@@ -78,16 +76,8 @@ export class TwentyFortyEightComponent {
     this.setNumber();
   }
 
-  // TODO: remove, For testing
-  ngOnInit() {
-    this.startGame();
-  }
-
-  startGame() {
+  startGame(): void {
     this.gameStart = true;
-
-    // TODO: remove, For testing
-    this.buildBoard(3);
   }
 
   buildBoard(size: number): void {
