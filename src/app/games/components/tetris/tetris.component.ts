@@ -115,7 +115,7 @@ export class TetrisComponent {
     return false;
   }
 
-  clearPreviousPositions(cells, isStucked) {
+  clearPreviousPositions(cells, isStucked): void {
     for (const cell of cells) {
       const index = cell.index;
 
@@ -127,7 +127,7 @@ export class TetrisComponent {
     }
   }
 
-  putFigureOnNextPosition(cells, isStuck) {
+  putFigureOnNextPosition(cells, isStuck): void {
     for (const cell of cells) {
       const index = cell.index + this.nextFigure.directionStep;
       if (cells[cells.length - 1].index + this.nextFigure.directionStep < this.board.length && !isStuck) {
@@ -136,28 +136,7 @@ export class TetrisComponent {
     }
   }
 
-  moveFigureDown(): void {
-    this.nextFigure.directionStep = this.rowSize;
-    const nextFigurePlace: TetrisCell[] = this.nextFigurePosition();
-    const stuckEvery = this.checkNextFigurePosition(nextFigurePlace);
-
-    this.clearPreviousPositions(nextFigurePlace, stuckEvery);
-    this.putFigureOnNextPosition(nextFigurePlace, stuckEvery);
-    this.putFigure();
-  }
-
-  moveFigureLeft() {
-    this.nextFigure.directionStep = -1;
-    const nextFigurePlace: TetrisCell[] = this.nextFigurePosition();
-    const stuckEvery = this.checkNextFigurePosition(nextFigurePlace);
-
-    this.clearPreviousPositions(nextFigurePlace, stuckEvery);
-    this.putFigureOnNextPosition(nextFigurePlace, stuckEvery);
-    this.putFigure();
-  }
-
-  moveFigureRight() {
-    this.nextFigure.directionStep = 1;
+  moveFigure(): void {
     const nextFigurePlace: TetrisCell[] = this.nextFigurePosition();
     const stuckEvery = this.checkNextFigurePosition(nextFigurePlace);
 
@@ -176,19 +155,22 @@ export class TetrisComponent {
   snakeDirectionListener(event): void {
     switch (event.keyCode) {
       case Directions.RIGHT:
-        this.moveFigureRight();
+        this.nextFigure.directionStep = 1;
         break;
 
       case Directions.LEFT:
-        this.moveFigureLeft();
+        this.nextFigure.directionStep = -1;
         break;
 
       case Directions.UP:
         break;
 
       case Directions.DOWN:
-        this.moveFigureDown();
+        this.nextFigure.directionStep = this.rowSize;
         break;
+    }
+    if (this.nextFigure.directionStep) {
+      this.moveFigure();
     }
   }
 }
