@@ -11,6 +11,8 @@ export interface TetrisCell {
   cellNumber: number;
   index?: number;
   isStuck: boolean;
+  transponedState?: number[];
+  directionStep?: number;
 }
 
 export enum TetrisFigureType {

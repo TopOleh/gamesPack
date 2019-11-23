@@ -1,8 +1,4 @@
-import { TetrisCellModel } from './interfaces/tetris-cell';
 import { Component, HostListener } from '@angular/core';
-
-// rxjs
-import { Observable, interval } from 'rxjs';
 
 import { TetrisCellModel, TetrisCell, TetrisFigureType } from './interfaces';
 import { Directions } from '../snake/interfaces';
@@ -13,30 +9,19 @@ import { Directions } from '../snake/interfaces';
 })
 
 export class TetrisComponent {
-  isStucked: boolean;
-  boardSize = 3;
-  borderSize = 1;
   board: Array<TetrisCell>;
-  cellSize = 20;
-  figureLength = 4;
+  boardSize = 9;
   gameStart: boolean;
-  moveInterval: Observable<number> = interval(1000);
   showBoard: boolean;
-  rowSize: number;
 
-  // TODO: remove, For testing
-  ngOnInit() {
-    this.startNewGame();
-  }
+  private borderSize = 1;
+  private cellSize = 20;
+  private figureLength = 4;
+  private rowSize: number;
+  private nextFigure: TetrisCell;
 
   startNewGame(): void {
     this.gameStart = true;
-    const figure: TetrisCell = this.generateFigure();
-
-    // TODO: remove, For testing
-    this.buildBoard(9);
-
-    this.setFigure(figure);
   }
 
   buildBoard(size: number): void {
@@ -44,60 +29,69 @@ export class TetrisComponent {
     this.boardSize = Math.pow(size, 2);
     this.board = new Array(this.boardSize).fill(null).map((e: TetrisCell) => new TetrisCellModel('', 0));
     this.showBoard = true;
+
+    this.putFigure(this.showBoard);
   }
 
   generateFigure(): TetrisCell {
     const figureType = Math.floor(Math.random() * this.figureLength);
     const newFigure = new TetrisCellModel(TetrisFigureType[figureType], figureType);
+
     return newFigure;
   }
 
-  setFigure(figure: TetrisCell): void {
+  generateFigurePosition(): void {
     let boardPlace = Math.floor(this.rowSize / 2);
 
-
-    switch (figure.type) {
+    switch (this.nextFigure.type) {
       case 'SIGMA':
-        this.board[boardPlace] = figure;
-        this.board[boardPlace + 1] = figure;
-        this.board[boardPlace + this.rowSize + 1] = figure;
-        this.board[boardPlace + this.rowSize + 2] = figure;
+        this.board[boardPlace] = this.nextFigure;
+        this.board[boardPlace + 1] = this.nextFigure;
+        this.board[boardPlace + this.rowSize + 1] = this.nextFigure;
+        this.board[boardPlace + this.rowSize + 2] = this.nextFigure;
         break;
 
       case 'KUBE':
-        this.board[boardPlace] = figure;
-        this.board[boardPlace + 1] = figure;
-        this.board[boardPlace + this.rowSize] = figure;
-        this.board[boardPlace + this.rowSize + 1] = figure;
+        this.board[boardPlace] = this.nextFigure;
+        this.board[boardPlace + 1] = this.nextFigure;
+        this.board[boardPlace + this.rowSize] = this.nextFigure;
+        this.board[boardPlace + this.rowSize + 1] = this.nextFigure;
         break;
 
       case 'THREEENDS':
-        this.board[boardPlace] = figure;
-        this.board[boardPlace + this.rowSize - 1] = figure;
-        this.board[boardPlace + this.rowSize] = figure;
-        this.board[boardPlace + this.rowSize + 1] = figure;
+        this.board[boardPlace] = this.nextFigure;
+        this.board[boardPlace + this.rowSize - 1] = this.nextFigure;
+        this.board[boardPlace + this.rowSize] = this.nextFigure;
+        this.board[boardPlace + this.rowSize + 1] = this.nextFigure;
         break;
 
       case 'GTYPE':
-        this.board[boardPlace] = figure;
-        this.board[boardPlace + 1] = figure;
-        this.board[boardPlace + 2] = figure;
-        this.board[boardPlace + this.rowSize] = figure;
+        this.board[boardPlace] = this.nextFigure;
+        this.board[boardPlace + 1] = this.nextFigure;
+        this.board[boardPlace + 2] = this.nextFigure;
+        this.board[boardPlace + this.rowSize] = this.nextFigure;
         break;
 
       default:
         for (let cellIndex = 0; cellIndex < this.figureLength; cellIndex++) {
-          this.board[boardPlace] = figure;
+          this.board[boardPlace] = this.nextFigure;
           boardPlace++;
         }
         break;
     }
   }
 
-  moveFigure(): void {
-    let stuckEvery = false;
+  putFigure(initialSetup = false) {
+    const figureInMove = this.board.filter(fig => !fig.isStuck && fig.type);
 
-    const nextFigurePlace: TetrisCell[] = this.board.reduce((potentialPlace, cell, cellI) => {
+    if (!figureInMove.length || initialSetup) {
+      this.nextFigure = this.generateFigure();
+      this.generateFigurePosition();
+    }
+  }
+
+  nextFigurePosition(): TetrisCell[] {
+    return this.board.reduce((potentialPlace, cell, cellI) => {
       if (cell.type && !cell.isStuck) {
         const newCell: TetrisCell = new TetrisCellModel(cell.type, cell.cellNumber);
         newCell.index = cellI;
@@ -107,132 +101,69 @@ export class TetrisComponent {
 
       return potentialPlace;
     }, []);
+  }
 
-    for (let i = 0; i < nextFigurePlace.length; i++) {
-      const nextCellPlace = nextFigurePlace[i].index + this.rowSize;
+  checkNextFigurePosition(cells: TetrisCell[]): boolean {
+    for (const cell of cells) {
+      const nextCellPlace = cell.index + this.nextFigure.directionStep;
+      const nextCell = this.board[nextCellPlace];
 
-      if (this.board[nextCellPlace] && this.board[nextCellPlace].type && this.board[nextCellPlace].isStuck) {
-        stuckEvery = true;
+      if (nextCell && nextCell.type && nextCell.isStuck) {
+        return true;
       }
     }
+    return false;
+  }
 
+  clearPreviousPositions(cells, isStucked) {
+    for (const cell of cells) {
+      const index = cell.index;
 
-    for (let i = 0; i < nextFigurePlace.length; i++) {
-      const index = nextFigurePlace[i].index;
-
-      if (nextFigurePlace[nextFigurePlace.length - 1].index + this.rowSize < this.board.length && !stuckEvery) {
+      if (cells[cells.length - 1].index + this.nextFigure.directionStep < this.board.length && !isStucked) {
         this.board[index] = new TetrisCellModel();
       } else {
         this.board[index].isStuck = true;
       }
     }
+  }
 
-    for (let i = 0; i < nextFigurePlace.length; i++) {
-      const index = nextFigurePlace[i].index + this.rowSize;
-      if (nextFigurePlace[nextFigurePlace.length - 1].index + this.rowSize < this.board.length && !stuckEvery) {
-        this.board[index] = new TetrisCellModel(nextFigurePlace[i].type, nextFigurePlace[i].cellNumber);
+  putFigureOnNextPosition(cells, isStuck) {
+    for (const cell of cells) {
+      const index = cell.index + this.nextFigure.directionStep;
+      if (cells[cells.length - 1].index + this.nextFigure.directionStep < this.board.length && !isStuck) {
+        this.board[index] = new TetrisCellModel(cell.type, cell.cellNumber);
       }
     }
-    const figureInMove = this.board.filter(fig => !fig.isStuck && fig.type);
+  }
 
-    if (!figureInMove.length) {
-      const figure: TetrisCell = this.generateFigure();
-      this.setFigure(figure);
-    }
+  moveFigureDown(): void {
+    this.nextFigure.directionStep = this.rowSize;
+    const nextFigurePlace: TetrisCell[] = this.nextFigurePosition();
+    const stuckEvery = this.checkNextFigurePosition(nextFigurePlace);
+
+    this.clearPreviousPositions(nextFigurePlace, stuckEvery);
+    this.putFigureOnNextPosition(nextFigurePlace, stuckEvery);
+    this.putFigure();
   }
 
   moveFigureLeft() {
-    let stuckEvery = false;
+    this.nextFigure.directionStep = -1;
+    const nextFigurePlace: TetrisCell[] = this.nextFigurePosition();
+    const stuckEvery = this.checkNextFigurePosition(nextFigurePlace);
 
-    const nextFigurePlace: TetrisCell[] = this.board.reduce((potentialPlace, cell, cellI) => {
-      if (cell.type && !cell.isStuck) {
-        const newCell: TetrisCell = new TetrisCellModel(cell.type, cell.cellNumber);
-        newCell.index = cellI;
-
-        potentialPlace.push(newCell);
-      }
-
-      return potentialPlace;
-    }, []);
-
-    for (let i = 0; i < nextFigurePlace.length; i++) {
-      const nextCellPlace = nextFigurePlace[i].index - 1;
-
-      if (this.board[nextCellPlace] && this.board[nextCellPlace].type && this.board[nextCellPlace].isStuck) {
-        stuckEvery = true;
-      }
-    }
-
-
-    for (let i = 0; i < nextFigurePlace.length; i++) {
-      const index = nextFigurePlace[i].index;
-
-      if (nextFigurePlace[nextFigurePlace.length - 1].index - 1 < this.board.length && !stuckEvery) {
-        this.board[index] = new TetrisCellModel();
-      } else {
-        this.board[index].isStuck = true;
-      }
-    }
-
-    for (let i = 0; i < nextFigurePlace.length; i++) {
-      const index = nextFigurePlace[i].index - 1;
-      if (nextFigurePlace[nextFigurePlace.length - 1].index - 1 < this.board.length && !stuckEvery) {
-        this.board[index] = new TetrisCellModel(nextFigurePlace[i].type, nextFigurePlace[i].cellNumber);
-      }
-    }
-    const figureInMove = this.board.filter(fig => !fig.isStuck && fig.type);
-
-    if (!figureInMove.length) {
-      const figure: TetrisCell = this.generateFigure();
-      this.setFigure(figure);
-    }
+    this.clearPreviousPositions(nextFigurePlace, stuckEvery);
+    this.putFigureOnNextPosition(nextFigurePlace, stuckEvery);
+    this.putFigure();
   }
 
   moveFigureRight() {
-    let stuckEvery = false;
+    this.nextFigure.directionStep = 1;
+    const nextFigurePlace: TetrisCell[] = this.nextFigurePosition();
+    const stuckEvery = this.checkNextFigurePosition(nextFigurePlace);
 
-    const nextFigurePlace: TetrisCell[] = this.board.reduce((potentialPlace, cell, cellI) => {
-      if (cell.type && !cell.isStuck) {
-        const newCell: TetrisCell = new TetrisCellModel(cell.type, cell.cellNumber);
-        newCell.index = cellI;
-
-        potentialPlace.push(newCell);
-      }
-
-      return potentialPlace;
-    }, []);
-
-    for (let i = 0; i < nextFigurePlace.length; i++) {
-      const nextCellPlace = nextFigurePlace[i].index + 1;
-
-      if (this.board[nextCellPlace] && this.board[nextCellPlace].type && this.board[nextCellPlace].isStuck) {
-        stuckEvery = true;
-      }
-    }
-
-
-    for (let i = 0; i < nextFigurePlace.length; i++) {
-      const index = nextFigurePlace[i].index;
-
-      if (nextFigurePlace[nextFigurePlace.length - 1].index + 1 < this.board.length && !stuckEvery) {
-        this.board[index] = new TetrisCellModel();
-      } else {
-        this.board[index].isStuck = true;
-      }
-    }
-
-    for (let i = 0; i < nextFigurePlace.length; i++) {
-      const index = nextFigurePlace[i].index + 1;
-      if (nextFigurePlace[nextFigurePlace.length - 1].index + 1 < this.board.length && !stuckEvery) {
-        this.board[index] = new TetrisCellModel(nextFigurePlace[i].type, nextFigurePlace[i].cellNumber);
-      }
-    }
-    const figureInMove = this.board.filter(fig => !fig.isStuck && fig.type);
-
-    if (!figureInMove.length) {
-      const figure: TetrisCell = this.generateFigure();
-      this.setFigure(figure);
-    }
+    this.clearPreviousPositions(nextFigurePlace, stuckEvery);
+    this.putFigureOnNextPosition(nextFigurePlace, stuckEvery);
+    this.putFigure();
   }
 
   setBoardStyle(): { width: string } {
@@ -256,7 +187,7 @@ export class TetrisComponent {
         break;
 
       case Directions.DOWN:
-        this.moveFigure();
+        this.moveFigureDown();
         break;
     }
   }
