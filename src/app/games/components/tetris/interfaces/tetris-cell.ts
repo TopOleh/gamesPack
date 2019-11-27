@@ -2,7 +2,8 @@ export class TetrisCellModel {
   constructor(
     public type = '',
     public cellNumber = 0,
-    public isStuck = false
+    public isStuck = false,
+    public rotation = 0,
   ) { }
 }
 
@@ -11,14 +12,14 @@ export interface TetrisCell {
   cellNumber: number;
   index?: number;
   isStuck: boolean;
-  transponedState?: number[];
+  rotation: number;
   directionStep?: number;
 }
 
 export enum TetrisFigureType {
-  STRAIGHT,
-  SIGMA,
-  THREEENDS,
-  GTYPE,
-  KUBE
+  I,
+  S,
+  T,
+  L,
+  O
 }

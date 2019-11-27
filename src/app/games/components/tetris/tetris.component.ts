@@ -34,9 +34,8 @@ export class TetrisComponent {
   }
 
   generateFigure(): TetrisCell {
-    const figureType = Math.floor(Math.random() * this.figureLength);
+    const figureType = Math.floor(Math.random() * this.figureLength + 1);
     const newFigure = new TetrisCellModel(TetrisFigureType[figureType], figureType);
-
     return newFigure;
   }
 
@@ -44,39 +43,42 @@ export class TetrisComponent {
     let boardPlace = Math.floor(this.rowSize / 2);
 
     switch (this.nextFigure.type) {
-      case 'SIGMA':
+      case 'S':
         this.board[boardPlace] = this.nextFigure;
         this.board[boardPlace + 1] = this.nextFigure;
         this.board[boardPlace + this.rowSize + 1] = this.nextFigure;
         this.board[boardPlace + this.rowSize + 2] = this.nextFigure;
         break;
 
-      case 'KUBE':
+      case 'O':
         this.board[boardPlace] = this.nextFigure;
         this.board[boardPlace + 1] = this.nextFigure;
         this.board[boardPlace + this.rowSize] = this.nextFigure;
         this.board[boardPlace + this.rowSize + 1] = this.nextFigure;
         break;
 
-      case 'THREEENDS':
+      case 'T':
         this.board[boardPlace] = this.nextFigure;
         this.board[boardPlace + this.rowSize - 1] = this.nextFigure;
         this.board[boardPlace + this.rowSize] = this.nextFigure;
         this.board[boardPlace + this.rowSize + 1] = this.nextFigure;
         break;
 
-      case 'GTYPE':
+      case 'L':
         this.board[boardPlace] = this.nextFigure;
         this.board[boardPlace + 1] = this.nextFigure;
         this.board[boardPlace + 2] = this.nextFigure;
         this.board[boardPlace + this.rowSize] = this.nextFigure;
         break;
 
-      default:
+      case 'I':
         for (let cellIndex = 0; cellIndex < this.figureLength; cellIndex++) {
           this.board[boardPlace] = this.nextFigure;
           boardPlace++;
         }
+        break;
+      default:
+        console.log('Unknown type');
         break;
     }
   }
@@ -90,7 +92,7 @@ export class TetrisComponent {
     }
   }
 
-  nextFigurePosition(): TetrisCell[] {
+  getFigurePosition(): TetrisCell[] {
     return this.board.reduce((potentialPlace, cell, cellI) => {
       if (cell.type && !cell.isStuck) {
         const newCell: TetrisCell = new TetrisCellModel(cell.type, cell.cellNumber);
@@ -137,12 +139,109 @@ export class TetrisComponent {
   }
 
   moveFigure(): void {
-    const nextFigurePlace: TetrisCell[] = this.nextFigurePosition();
-    const stuckEvery = this.checkNextFigurePosition(nextFigurePlace);
+    const figurePosition: TetrisCell[] = this.getFigurePosition();
+    const isStuck = this.checkNextFigurePosition(figurePosition);
 
-    this.clearPreviousPositions(nextFigurePlace, stuckEvery);
-    this.putFigureOnNextPosition(nextFigurePlace, stuckEvery);
+    this.clearPreviousPositions(figurePosition, isStuck);
+    this.putFigureOnNextPosition(figurePosition, isStuck);
     this.putFigure();
+  }
+
+  rotateFigure() {
+    const figurePosition: TetrisCell[] = this.getFigurePosition();
+    const isStuck = this.checkNextFigurePosition(figurePosition);
+
+    this.clearPreviousPositions(figurePosition, isStuck);
+    // Defined rotated positions for straight figure
+
+    const fig = {
+      I: [
+        [-this.rowSize * 2 + 1, -this.rowSize, -1, this.rowSize - 2],
+        [this.rowSize * 2 + 2, this.rowSize + 1, 0, -this.rowSize - 1],
+        [-this.rowSize * 2 + 1, -this.rowSize, -1, this.rowSize - 2],
+        [this.rowSize * 2 + 2, this.rowSize + 1, 0, -this.rowSize - 1]
+      ],
+      S: [
+        [-this.rowSize + 2, 1, -this.rowSize, -1],
+        [this.rowSize - 1, -1, this.rowSize - 1, 1],
+        [-this.rowSize + 2, 1, -this.rowSize, -1],
+        [this.rowSize - 1, -1, this.rowSize - 1, 1]
+      ],
+      T: [
+        [0, -this.rowSize * 2, -this.rowSize - 1, -2],
+        [0, -this.rowSize + 1, 0, -this.rowSize * 2 + 2],
+        [this.rowSize + 2, this.rowSize * 2 + 1, 0, 0],
+        [this.rowSize * 2 - 2, 0, this.rowSize - 1, 0]
+      ],
+      L: [
+        [-this.rowSize, -this.rowSize, -1, 1],
+        [this.rowSize + 2, this.rowSize * 2 - 1, this.rowSize, 1],
+        [-this.rowSize - 2, -this.rowSize, -1, -1],
+        [this.rowSize + 1, 0, -this.rowSize + 2, -1],
+      ],
+      O: [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ]
+    };
+
+    // const I = [
+    //   [-this.rowSize * 2 + 1, -this.rowSize, -1, this.rowSize - 2],
+    //   [this.rowSize * 2 + 2, this.rowSize + 1, 0, -this.rowSize - 1],
+    //   [-this.rowSize * 2 + 1, -this.rowSize, -1, this.rowSize - 2],
+    //   [this.rowSize * 2 + 2, this.rowSize + 1, 0, -this.rowSize - 1]
+    // ];
+
+    // Defined rotated positions for sigma figure
+    // const S = [
+    //   [-this.rowSize + 2, 1, -this.rowSize, -1],
+    //   [this.rowSize - 1, -1, this.rowSize - 1, 1],
+    //   [-this.rowSize + 2, 1, -this.rowSize, -1],
+    //   [this.rowSize - 1, -1, this.rowSize - 1, 1]
+    // ];
+
+    // Defined rotated positions for sigma figure
+    // const T = [
+    //   [0, -this.rowSize * 2, -this.rowSize - 1, -2],
+    //   [0, -this.rowSize + 1, 0, -this.rowSize * 2 + 2],
+    //   [this.rowSize + 2, this.rowSize * 2 + 1, 0, 0],
+    //   [this.rowSize * 2 - 2, 0, this.rowSize - 1, 0]
+    // ];
+
+    // Defined rotated positions for sigma figure
+    // const L = [
+    //   [-this.rowSize, -this.rowSize, -1, 1],
+    //   [this.rowSize + 2, this.rowSize * 2 - 1, this.rowSize, 1],
+    //   [-this.rowSize - 2, -this.rowSize, -1, -1],
+    //   [this.rowSize + 1, 0, -this.rowSize + 2, -1],
+    // ];
+
+    // Defined rotated positions for sigma figure
+    // const kube = [
+    //   [0, 0, 0, 0],
+    //   [0, 0, 0, 0],
+    //   [0, 0, 0, 0],
+    //   [0, 0, 0, 0],
+    // ];
+
+    // Lets Open function
+    // this.putFigureOnNextPosition(figurePosition, isStuck);
+    for (const [i, cell] of figurePosition.entries()) {
+      const index = cell.index + fig[this.nextFigure.type][this.nextFigure.rotation][i];
+
+      if (figurePosition[figurePosition.length - 1].index + this.nextFigure.directionStep < this.board.length && !isStuck) {
+        this.board[index] = new TetrisCellModel(cell.type, cell.cellNumber);
+      }
+    }
+
+
+    this.putFigure();
+    this.nextFigure.rotation++;
+    if (this.nextFigure.rotation === 4) {
+      this.nextFigure.rotation = 0;
+    }
   }
 
   setBoardStyle(): { width: string } {
@@ -163,11 +262,15 @@ export class TetrisComponent {
         break;
 
       case Directions.UP:
+        this.nextFigure.directionStep = 0;
+        this.rotateFigure();
         break;
 
       case Directions.DOWN:
         this.nextFigure.directionStep = this.rowSize;
         break;
+      default:
+        this.nextFigure.directionStep = 0;
     }
     if (this.nextFigure.directionStep) {
       this.moveFigure();
