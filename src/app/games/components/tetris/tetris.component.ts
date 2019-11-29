@@ -34,9 +34,8 @@ export class TetrisComponent {
   }
 
   generateFigure(): TetrisCell {
-    const figureType = Math.floor(Math.random() * this.figureLength + 1);
-    // const newFigure = new TetrisCellModel(TetrisFigureType[figureType], figureType);
-    const newFigure = new TetrisCellModel('O', figureType);
+    const figureType = Math.floor(Math.random() * (this.figureLength + 1));
+    const newFigure = new TetrisCellModel(TetrisFigureType[figureType], figureType);
     return newFigure;
   }
 
@@ -118,6 +117,17 @@ export class TetrisComponent {
     return false;
   }
 
+  checkFigureRotatedPosition(cells: TetrisCell[], rotationPosition: number[]): boolean {
+    for (const [i, cell] of cells.entries()) {
+      const nextCellPlace = cell.index + rotationPosition[i];
+      const nextCell = this.board[nextCellPlace];
+      if (!nextCell || nextCell.type && nextCell.isStuck) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   clearPreviousPositions(cells, isStucked): void {
     for (const cell of cells) {
       const index = cell.index;
@@ -152,10 +162,6 @@ export class TetrisComponent {
 
   rotateFigure() {
     const figurePosition: TetrisCell[] = this.getFigurePosition();
-    const isStuck = this.checkNextFigurePosition(figurePosition);
-
-    this.clearPreviousPositions(figurePosition, isStuck);
-
     const fig = {
       I: [
         [-this.rowSize * 2 + 1, -this.rowSize, -1, this.rowSize - 2],
@@ -188,11 +194,18 @@ export class TetrisComponent {
         [0, 0, 0, 0],
       ]
     };
+    const isNotAvailable = this.checkFigureRotatedPosition(figurePosition, fig[this.nextFigure.type][this.nextFigure.rotation]);
+
+    if (isNotAvailable) {
+      return false;
+    }
+
+    this.clearPreviousPositions(figurePosition, isNotAvailable);
 
     for (const [i, cell] of figurePosition.entries()) {
       const index = cell.index + fig[this.nextFigure.type][this.nextFigure.rotation][i];
 
-      if (figurePosition[figurePosition.length - 1].index + this.nextFigure.directionStep < this.board.length && !isStuck) {
+      if (figurePosition[figurePosition.length - 1].index + this.nextFigure.directionStep < this.board.length && !isNotAvailable) {
         this.board[index] = new TetrisCellModel(cell.type, cell.cellNumber);
       }
     }
