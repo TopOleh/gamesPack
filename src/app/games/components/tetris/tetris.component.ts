@@ -35,7 +35,8 @@ export class TetrisComponent {
 
   generateFigure(): TetrisCell {
     const figureType = Math.floor(Math.random() * this.figureLength + 1);
-    const newFigure = new TetrisCellModel(TetrisFigureType[figureType], figureType);
+    // const newFigure = new TetrisCellModel(TetrisFigureType[figureType], figureType);
+    const newFigure = new TetrisCellModel('O', figureType);
     return newFigure;
   }
 
@@ -145,6 +146,8 @@ export class TetrisComponent {
     this.clearPreviousPositions(figurePosition, isStuck);
     this.putFigureOnNextPosition(figurePosition, isStuck);
     this.putFigure();
+
+    this.clearRow();
   }
 
   rotateFigure() {
@@ -152,7 +155,6 @@ export class TetrisComponent {
     const isStuck = this.checkNextFigurePosition(figurePosition);
 
     this.clearPreviousPositions(figurePosition, isStuck);
-    // Defined rotated positions for straight figure
 
     const fig = {
       I: [
@@ -187,47 +189,6 @@ export class TetrisComponent {
       ]
     };
 
-    // const I = [
-    //   [-this.rowSize * 2 + 1, -this.rowSize, -1, this.rowSize - 2],
-    //   [this.rowSize * 2 + 2, this.rowSize + 1, 0, -this.rowSize - 1],
-    //   [-this.rowSize * 2 + 1, -this.rowSize, -1, this.rowSize - 2],
-    //   [this.rowSize * 2 + 2, this.rowSize + 1, 0, -this.rowSize - 1]
-    // ];
-
-    // Defined rotated positions for sigma figure
-    // const S = [
-    //   [-this.rowSize + 2, 1, -this.rowSize, -1],
-    //   [this.rowSize - 1, -1, this.rowSize - 1, 1],
-    //   [-this.rowSize + 2, 1, -this.rowSize, -1],
-    //   [this.rowSize - 1, -1, this.rowSize - 1, 1]
-    // ];
-
-    // Defined rotated positions for sigma figure
-    // const T = [
-    //   [0, -this.rowSize * 2, -this.rowSize - 1, -2],
-    //   [0, -this.rowSize + 1, 0, -this.rowSize * 2 + 2],
-    //   [this.rowSize + 2, this.rowSize * 2 + 1, 0, 0],
-    //   [this.rowSize * 2 - 2, 0, this.rowSize - 1, 0]
-    // ];
-
-    // Defined rotated positions for sigma figure
-    // const L = [
-    //   [-this.rowSize, -this.rowSize, -1, 1],
-    //   [this.rowSize + 2, this.rowSize * 2 - 1, this.rowSize, 1],
-    //   [-this.rowSize - 2, -this.rowSize, -1, -1],
-    //   [this.rowSize + 1, 0, -this.rowSize + 2, -1],
-    // ];
-
-    // Defined rotated positions for sigma figure
-    // const kube = [
-    //   [0, 0, 0, 0],
-    //   [0, 0, 0, 0],
-    //   [0, 0, 0, 0],
-    //   [0, 0, 0, 0],
-    // ];
-
-    // Lets Open function
-    // this.putFigureOnNextPosition(figurePosition, isStuck);
     for (const [i, cell] of figurePosition.entries()) {
       const index = cell.index + fig[this.nextFigure.type][this.nextFigure.rotation][i];
 
@@ -236,12 +197,35 @@ export class TetrisComponent {
       }
     }
 
-
     this.putFigure();
     this.nextFigure.rotation++;
     if (this.nextFigure.rotation === 4) {
       this.nextFigure.rotation = 0;
     }
+  }
+
+  splitBoardByRows() {
+    return this.board.reduce((acc, cell, index) => {
+      if (index % this.rowSize === 0) {
+        acc.push([cell]);
+      } else {
+        acc[acc.length - 1].push(cell);
+      }
+      return acc;
+    }, []);
+  }
+
+  clearRow() {
+    const arr = this.splitBoardByRows();
+    arr.forEach((row: TetrisCell[], rowIndex: number, rows: TetrisCell[][]) => {
+      if (row.every((cell: TetrisCell) => cell.isStuck && cell.type)) {
+        rows.splice(rowIndex, 1);
+        rows.unshift(new Array(this.rowSize).fill(null).map((e: TetrisCell) => new TetrisCellModel('', 0)));
+      }
+      return row;
+    });
+
+    this.board = arr.reduce((newBoard: TetrisCell[], row: TetrisCell[]) => newBoard.concat(row), []);
   }
 
   setBoardStyle(): { width: string } {
