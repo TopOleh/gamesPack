@@ -1,5 +1,9 @@
 import { Component, HostListener } from '@angular/core';
 
+// rxjs
+import { Subject, Observable, interval } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
 import { TetrisCellModel, TetrisCell, TetrisFigureType } from './interfaces';
 import { Directions } from '../snake/interfaces';
 
@@ -19,6 +23,8 @@ export class TetrisComponent {
   private figureLength = 4;
   private rowSize: number;
   private nextFigure: TetrisCell;
+  private moveInterval: Observable<number> = interval(1000);
+  private endGame: Subject<boolean> = new Subject();
 
   startNewGame(): void {
     this.gameStart = true;
@@ -31,6 +37,12 @@ export class TetrisComponent {
     this.showBoard = true;
 
     this.putFigure(this.showBoard);
+    this.moveInterval.pipe(
+      takeUntil(this.endGame)
+    ).subscribe(_ => {
+      this.nextFigure.directionStep = this.rowSize;
+      this.moveFigure();
+    });
   }
 
   generateFigure(): TetrisCell {
@@ -149,15 +161,29 @@ export class TetrisComponent {
     }
   }
 
+  endOfRow(cells): boolean {
+    for (const cell of cells) {
+      let nextCellPlace = cell.index + this.nextFigure.directionStep;
+
+      nextCellPlace = this.nextFigure.directionStep === -1 ? nextCellPlace += 1 : nextCellPlace;
+      if (nextCellPlace % this.rowSize === 0 && this.nextFigure.directionStep !== this.rowSize) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   moveFigure(): void {
     const figurePosition: TetrisCell[] = this.getFigurePosition();
     const isStuck = this.checkNextFigurePosition(figurePosition);
-
+    const isEndOfRow = this.endOfRow(figurePosition);
+    if (!isEndOfRow) {
+      return;
+    }
     this.clearPreviousPositions(figurePosition, isStuck);
     this.putFigureOnNextPosition(figurePosition, isStuck);
-    this.putFigure();
-
     this.clearRow();
+    this.putFigure();
   }
 
   rotateFigure() {
@@ -234,6 +260,14 @@ export class TetrisComponent {
       if (row.every((cell: TetrisCell) => cell.isStuck && cell.type)) {
         rows.splice(rowIndex, 1);
         rows.unshift(new Array(this.rowSize).fill(null).map((e: TetrisCell) => new TetrisCellModel('', 0)));
+        this.endGame.next(false);
+        this.moveInterval = interval(300);
+        this.moveInterval.pipe(
+          takeUntil(this.endGame)
+        ).subscribe(_ => {
+          this.nextFigure.directionStep = this.rowSize;
+          this.moveFigure();
+        });
       }
       return row;
     });
