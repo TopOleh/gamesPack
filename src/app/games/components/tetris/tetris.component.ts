@@ -1,8 +1,5 @@
+import { FigureService } from './services/figure.service';
 import { Component, HostListener } from '@angular/core';
-
-// rxjs
-import { Subject, Observable, interval } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 import { TetrisCellModel, TetrisCell, TetrisFigureType } from './interfaces';
 import { Directions } from '../snake/interfaces';
@@ -23,8 +20,8 @@ export class TetrisComponent {
   private figureLength = 4;
   private rowSize: number;
   private nextFigure: TetrisCell;
-  private moveInterval: Observable<number> = interval(1000);
-  private endGame: Subject<boolean> = new Subject();
+
+  constructor(private figureService: FigureService) { }
 
   startNewGame(): void {
     this.gameStart = true;
@@ -33,13 +30,16 @@ export class TetrisComponent {
   buildBoard(size: number): void {
     this.rowSize = size;
     this.boardSize = Math.pow(size, 2);
-    this.board = new Array(this.boardSize).fill(null).map((e: TetrisCell) => new TetrisCellModel('', 0));
+    this.board = this.figureService.buildNewTetrisArray(this.boardSize);
     this.showBoard = true;
 
     this.putFigure(this.showBoard);
-    this.moveInterval.pipe(
-      takeUntil(this.endGame)
-    ).subscribe(_ => {
+
+    this.setFigureMove();
+  }
+
+  setFigureMove(): void {
+    this.figureService.setFigureSpeed().subscribe(_ => {
       this.nextFigure.directionStep = this.rowSize;
       this.moveFigure();
     });
@@ -259,15 +259,9 @@ export class TetrisComponent {
     arr.forEach((row: TetrisCell[], rowIndex: number, rows: TetrisCell[][]) => {
       if (row.every((cell: TetrisCell) => cell.isStuck && cell.type)) {
         rows.splice(rowIndex, 1);
-        rows.unshift(new Array(this.rowSize).fill(null).map((e: TetrisCell) => new TetrisCellModel('', 0)));
-        this.endGame.next(false);
-        this.moveInterval = interval(300);
-        this.moveInterval.pipe(
-          takeUntil(this.endGame)
-        ).subscribe(_ => {
-          this.nextFigure.directionStep = this.rowSize;
-          this.moveFigure();
-        });
+        rows.unshift(this.figureService.buildNewTetrisArray(this.rowSize));
+
+        this.setFigureMove();
       }
       return row;
     });
