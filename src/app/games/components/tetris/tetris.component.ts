@@ -46,7 +46,8 @@ export class TetrisComponent {
   }
 
   generateFigure(): TetrisCell {
-    const figureType = Math.floor(Math.random() * (this.figureLength + 1));
+    // const figureType = Math.floor(Math.random() * (this.figureLength + 1));
+    const figureType = 3;
     const newFigure = new TetrisCellModel(TetrisFigureType[figureType], figureType);
     return newFigure;
   }
@@ -140,13 +141,13 @@ export class TetrisComponent {
     return false;
   }
 
-  clearPreviousPositions(cells, isStucked): void {
+  clearPreviousPositions(cells, isStuck): void {
     for (const cell of cells) {
       const index = cell.index;
 
-      if (cells[cells.length - 1].index + this.nextFigure.directionStep < this.board.length && !isStucked) {
+      if (cells[cells.length - 1].index + this.nextFigure.directionStep < this.board.length && !isStuck) {
         this.board[index] = new TetrisCellModel();
-      } else {
+      } else if (this.nextFigure.directionStep === this.rowSize) {
         this.board[index].isStuck = true;
       }
     }
