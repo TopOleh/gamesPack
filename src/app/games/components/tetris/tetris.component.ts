@@ -46,8 +46,7 @@ export class TetrisComponent {
   }
 
   generateFigure(): TetrisCell {
-    // const figureType = Math.floor(Math.random() * (this.figureLength + 1));
-    const figureType = 3;
+    const figureType = Math.floor(Math.random() * (this.figureLength + 1));
     const newFigure = new TetrisCellModel(TetrisFigureType[figureType], figureType);
     return newFigure;
   }
@@ -154,7 +153,7 @@ export class TetrisComponent {
   }
 
   putFigureOnNextPosition(cells, isStuck): void {
-    for (const [i, cell] of cells) {
+    for (const cell of cells) {
       const index = cell.index + this.nextFigure.directionStep;
       if (cells[cells.length - 1].index + this.nextFigure.directionStep < this.board.length && !isStuck) {
         this.board[index] = new TetrisCellModel(cell.type, cell.cellNumber);
