@@ -141,6 +141,16 @@ export class TetrisComponent {
     return false;
   }
 
+  allowFigureRotation(cells: TetrisCell[], rotationPosition: number[]): boolean {
+    for (const [i, cell] of cells.entries()) {
+      const nextCellPlace = cell.index + rotationPosition[i];
+      if (Math.abs(nextCellPlace % this.rowSize - cell.index % this.rowSize) > this.figureLength) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   clearPreviousPositions(cells, isStuck): void {
     for (const cell of cells) {
       const index = cell.index;
@@ -222,9 +232,10 @@ export class TetrisComponent {
       ]
     };
     const isNotAvailable = this.checkFigureRotatedPosition(figurePosition, fig[this.nextFigure.type][this.nextFigure.rotation]);
+    const isNotAllowed = this.allowFigureRotation(figurePosition, fig[this.nextFigure.type][this.nextFigure.rotation]);
 
-    if (isNotAvailable) {
-      return false;
+    if (isNotAvailable || isNotAllowed) {
+      return;
     }
 
     this.clearPreviousPositions(figurePosition, isNotAvailable);
