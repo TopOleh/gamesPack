@@ -153,7 +153,7 @@ export class TetrisComponent {
   }
 
   putFigureOnNextPosition(cells, isStuck): void {
-    for (const cell of cells) {
+    for (const [i, cell] of cells) {
       const index = cell.index + this.nextFigure.directionStep;
       if (cells[cells.length - 1].index + this.nextFigure.directionStep < this.board.length && !isStuck) {
         this.board[index] = new TetrisCellModel(cell.type, cell.cellNumber);
@@ -243,19 +243,9 @@ export class TetrisComponent {
     }
   }
 
-  splitBoardByRows() {
-    return this.board.reduce((acc, cell, index) => {
-      if (index % this.rowSize === 0) {
-        acc.push([cell]);
-      } else {
-        acc[acc.length - 1].push(cell);
-      }
-      return acc;
-    }, []);
-  }
-
   clearRow() {
-    const arr = this.splitBoardByRows();
+    const arr = this.figureService.splitBoardByRows(this.board, this.rowSize);
+
     arr.forEach((row: TetrisCell[], rowIndex: number, rows: TetrisCell[][]) => {
       if (row.every((cell: TetrisCell) => cell.isStuck && cell.type)) {
         rows.splice(rowIndex, 1);
@@ -276,7 +266,10 @@ export class TetrisComponent {
   }
 
   @HostListener('window:keydown', ['$event'])
-  snakeDirectionListener(event): void {
+  tetrisDirectionListener(event): void {
+    if (!Directions[event.keyCode]) {
+      return;
+    }
     switch (event.keyCode) {
       case Directions.RIGHT:
         this.nextFigure.directionStep = 1;
@@ -288,7 +281,6 @@ export class TetrisComponent {
 
       case Directions.UP:
         this.nextFigure.directionStep = 0;
-        this.rotateFigure();
         break;
 
       case Directions.DOWN:
@@ -297,8 +289,6 @@ export class TetrisComponent {
       default:
         this.nextFigure.directionStep = 0;
     }
-    if (this.nextFigure.directionStep) {
-      this.moveFigure();
-    }
+    this.nextFigure.directionStep ? this.moveFigure() : this.rotateFigure();
   }
 }
