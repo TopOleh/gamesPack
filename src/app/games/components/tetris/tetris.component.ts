@@ -11,9 +11,10 @@ import { Directions } from '../snake/interfaces';
 
 export class TetrisComponent {
   board: Array<TetrisCell>;
-  boardSize = 9;
+  boardSize = 12;
   gameStart: boolean;
   showBoard: boolean;
+  earnedPoints = 0;
 
   private borderSize = 1;
   private cellSize = 20;
@@ -47,7 +48,7 @@ export class TetrisComponent {
 
   generateFigure(): TetrisCell {
     const figureType = Math.floor(Math.random() * (this.figureLength + 1));
-    const newFigure = new TetrisCellModel(TetrisFigureType[figureType], figureType);
+    const newFigure = new TetrisCellModel(TetrisFigureType[figureType], figureType, figureType + 1);
     return newFigure;
   }
 
@@ -107,7 +108,7 @@ export class TetrisComponent {
   getFigurePosition(): TetrisCell[] {
     return this.board.reduce((potentialPlace, cell, cellI) => {
       if (cell.type && !cell.isStuck) {
-        const newCell: TetrisCell = new TetrisCellModel(cell.type, cell.cellNumber);
+        const newCell: TetrisCell = new TetrisCellModel(cell.type, cell.cellNumber, cell.pointsEarned);
         newCell.index = cellI;
 
         potentialPlace.push(newCell);
@@ -156,7 +157,7 @@ export class TetrisComponent {
     for (const cell of cells) {
       const index = cell.index + this.nextFigure.directionStep;
       if (cells[cells.length - 1].index + this.nextFigure.directionStep < this.board.length && !isStuck) {
-        this.board[index] = new TetrisCellModel(cell.type, cell.cellNumber);
+        this.board[index] = new TetrisCellModel(cell.type, cell.cellNumber, cell.pointsEarned);
       }
     }
   }
@@ -232,7 +233,7 @@ export class TetrisComponent {
       const index = cell.index + fig[this.nextFigure.type][this.nextFigure.rotation][i];
 
       if (figurePosition[figurePosition.length - 1].index + this.nextFigure.directionStep < this.board.length && !isNotAvailable) {
-        this.board[index] = new TetrisCellModel(cell.type, cell.cellNumber);
+        this.board[index] = new TetrisCellModel(cell.type, cell.cellNumber, cell.pointsEarned);
       }
     }
 
@@ -248,6 +249,7 @@ export class TetrisComponent {
 
     arr.forEach((row: TetrisCell[], rowIndex: number, rows: TetrisCell[][]) => {
       if (row.every((cell: TetrisCell) => cell.isStuck && cell.type)) {
+        this.earnedPoints = row.reduce((earned, cell) => earned + cell.pointsEarned, this.earnedPoints);
         rows.splice(rowIndex, 1);
         rows.unshift(this.figureService.buildNewTetrisArray(this.rowSize));
 
