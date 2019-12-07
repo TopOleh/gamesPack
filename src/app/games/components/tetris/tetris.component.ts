@@ -1,11 +1,11 @@
 import { Component, HostListener } from '@angular/core';
 
 import { Subject, Observable, interval } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { TetrisCellModel, TetrisCell, TetrisFigureType } from './interfaces';
 import { FigureService } from './services/figure.service';
 import { Directions } from '../snake/interfaces';
-import { takeUntil } from 'rxjs/operators';
 
 @Component({
   templateUrl: './tetris.component.html',
@@ -18,12 +18,12 @@ export class TetrisComponent {
   gameStart: boolean;
   showBoard: boolean;
   earnedPoints = 0;
+  rowSize: number;
 
   private maxBoardSize = 30;
   private borderSize = 1;
   private cellSize = 20;
   private figureLength = 4;
-  private rowSize: number;
   private nextFigure: TetrisCell;
   private figureAmount = 7;
   private initialFigureSetup: number;
@@ -38,7 +38,7 @@ export class TetrisComponent {
   }
 
   buildBoard(size: number): void {
-    this.rowSize = size > this.maxBoardSize ? this.maxBoardSize : size;
+    this.rowSize = size > this.maxBoardSize ? this.maxBoardSize : size <= 0 ? this.boardSize : size;
     this.initialFigureSetup = Math.floor(this.rowSize / 2);
     this.boardSize = Math.pow(this.rowSize, 2);
     this.board = this.figureService.buildNewTetrisArray(this.boardSize);
@@ -338,13 +338,12 @@ export class TetrisComponent {
     };
   }
 
-  @HostListener('window:keydown', ['$event'])
-  tetrisDirectionListener(event): void {
-    if (!Directions[event.keyCode]) {
+  @HostListener('window:keydown', ['$event.keyCode'])
+  tetrisDirectionListener(code): void {
+    if (!Directions[code]) {
       return;
     }
-    event.preventDefault();
-    switch (event.keyCode) {
+    switch (code) {
       case Directions.RIGHT:
         this.nextFigure.directionStep = 1;
         break;

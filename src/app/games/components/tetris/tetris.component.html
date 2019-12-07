@@ -10,7 +10,9 @@
     <button class="tfe-board-size__apply" (click)="buildBoard(boardSize)">Apply</button>
   </div>
 
-  <table *ngIf="showBoard" class="tfe-board" [ngStyle]="setBoardStyle()">
+  <table *ngIf="showBoard" class="tfe-board" [ngStyle]="setBoardStyle()" (swipeup)="tetrisDirectionListener(38)"
+    (swiperight)="tetrisDirectionListener(39)" (swipedown)="tetrisDirectionListener(40)"
+    (swipeleft)="tetrisDirectionListener(37)">
     <td class="tfe-board__cell" *ngFor="let cell of board">
       <div class="tfe-board__cell-number" [ngClass]="cell.type">{{ cell.cellNumber }}</div>
     </td>
