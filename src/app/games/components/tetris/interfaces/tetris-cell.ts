@@ -20,7 +20,9 @@ export interface TetrisCell {
 
 export enum TetrisFigureType {
   I,
+  Z,
   S,
+  J,
   T,
   L,
   O

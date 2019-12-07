@@ -21,6 +21,7 @@ export class TetrisComponent {
   private figureLength = 4;
   private rowSize: number;
   private nextFigure: TetrisCell;
+  private figureAmount = 7;
 
   constructor(private figureService: FigureService) { }
 
@@ -47,7 +48,7 @@ export class TetrisComponent {
   }
 
   generateFigure(): TetrisCell {
-    const figureType = Math.floor(Math.random() * (this.figureLength + 1));
+    const figureType = Math.floor(Math.random() * this.figureAmount);
     const newFigure = new TetrisCellModel(TetrisFigureType[figureType], figureType, figureType + 1);
     return newFigure;
   }
@@ -56,11 +57,18 @@ export class TetrisComponent {
     let boardPlace = Math.floor(this.rowSize / 2);
 
     switch (this.nextFigure.type) {
-      case 'S':
+      case 'Z':
         this.board[boardPlace] = this.nextFigure;
         this.board[boardPlace + 1] = this.nextFigure;
         this.board[boardPlace + this.rowSize + 1] = this.nextFigure;
         this.board[boardPlace + this.rowSize + 2] = this.nextFigure;
+        break;
+
+      case 'S':
+        this.board[boardPlace] = this.nextFigure;
+        this.board[boardPlace + 1] = this.nextFigure;
+        this.board[boardPlace + this.rowSize] = this.nextFigure;
+        this.board[boardPlace + this.rowSize - 1] = this.nextFigure;
         break;
 
       case 'O':
@@ -82,6 +90,13 @@ export class TetrisComponent {
         this.board[boardPlace + 1] = this.nextFigure;
         this.board[boardPlace + 2] = this.nextFigure;
         this.board[boardPlace + this.rowSize] = this.nextFigure;
+        break;
+
+      case 'J':
+        this.board[boardPlace] = this.nextFigure;
+        this.board[boardPlace + 1] = this.nextFigure;
+        this.board[boardPlace + 2] = this.nextFigure;
+        this.board[boardPlace + this.rowSize + 2] = this.nextFigure;
         break;
 
       case 'I':
@@ -206,11 +221,17 @@ export class TetrisComponent {
         [-this.rowSize * 2 + 1, -this.rowSize, -1, this.rowSize - 2],
         [this.rowSize * 2 + 2, this.rowSize + 1, 0, -this.rowSize - 1]
       ],
-      S: [
+      Z: [
         [-this.rowSize + 2, 1, -this.rowSize, -1],
         [this.rowSize - 1, -1, this.rowSize - 1, 1],
         [-this.rowSize + 2, 1, -this.rowSize, -1],
         [this.rowSize - 1, -1, this.rowSize - 1, 1]
+      ],
+      S: [
+        [-this.rowSize - 1, -2, -this.rowSize + 1, 0],
+        [this.rowSize + 1, 2, this.rowSize, -1],
+        [-this.rowSize - 1, -2, -this.rowSize + 1, 0],
+        [this.rowSize + 1, 2, this.rowSize, -1]
       ],
       T: [
         [0, -this.rowSize * 2, -this.rowSize - 1, -2],
@@ -223,6 +244,12 @@ export class TetrisComponent {
         [this.rowSize + 2, this.rowSize * 2 - 1, this.rowSize, 1],
         [-this.rowSize - 2, -this.rowSize, -1, -1],
         [this.rowSize + 1, 0, -this.rowSize + 2, -1],
+      ],
+      J: [
+        [-this.rowSize + 2, 1, this.rowSize, -1],
+        [this.rowSize - 2, this.rowSize - 2, 0, 0],
+        [-this.rowSize, -this.rowSize * 2 + 1, -this.rowSize - 1, -2],
+        [this.rowSize, this.rowSize, 2, 2],
       ],
       O: [
         [0, 0, 0, 0],
