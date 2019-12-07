@@ -1,8 +1,11 @@
-import { FigureService } from './services/figure.service';
 import { Component, HostListener } from '@angular/core';
 
+import { Subject, Observable, interval } from 'rxjs';
+
 import { TetrisCellModel, TetrisCell, TetrisFigureType } from './interfaces';
+import { FigureService } from './services/figure.service';
 import { Directions } from '../snake/interfaces';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   templateUrl: './tetris.component.html',
@@ -16,22 +19,28 @@ export class TetrisComponent {
   showBoard: boolean;
   earnedPoints = 0;
 
+  private maxBoardSize = 30;
   private borderSize = 1;
   private cellSize = 20;
   private figureLength = 4;
   private rowSize: number;
   private nextFigure: TetrisCell;
   private figureAmount = 7;
+  private initialFigureSetup: number;
+  private endGame: Subject<boolean> = new Subject();
+  private figureSpeed = 2000;
 
   constructor(private figureService: FigureService) { }
 
   startNewGame(): void {
     this.gameStart = true;
+    this.showBoard = false;
   }
 
   buildBoard(size: number): void {
-    this.rowSize = size;
-    this.boardSize = Math.pow(size, 2);
+    this.rowSize = size > this.maxBoardSize ? this.maxBoardSize : size;
+    this.initialFigureSetup = Math.floor(this.rowSize / 2);
+    this.boardSize = Math.pow(this.rowSize, 2);
     this.board = this.figureService.buildNewTetrisArray(this.boardSize);
     this.showBoard = true;
 
@@ -40,8 +49,15 @@ export class TetrisComponent {
     this.setFigureMove();
   }
 
+  setFigureSpeed(): Observable<number> {
+    this.figureSpeed = this.figureSpeed > 400 ? this.figureSpeed -= 200 : this.figureSpeed;
+    this.endGame.next(false);
+    return interval(this.figureSpeed).pipe(
+      takeUntil(this.endGame)
+    );
+  }
   setFigureMove(): void {
-    this.figureService.setFigureSpeed().subscribe(_ => {
+    this.setFigureSpeed().subscribe(_ => {
       this.nextFigure.directionStep = this.rowSize;
       this.moveFigure();
     });
@@ -54,61 +70,78 @@ export class TetrisComponent {
   }
 
   generateFigurePosition(): void {
-    let boardPlace = Math.floor(this.rowSize / 2);
+    const figurePlace = [];
 
     switch (this.nextFigure.type) {
       case 'Z':
-        this.board[boardPlace] = this.nextFigure;
-        this.board[boardPlace + 1] = this.nextFigure;
-        this.board[boardPlace + this.rowSize + 1] = this.nextFigure;
-        this.board[boardPlace + this.rowSize + 2] = this.nextFigure;
+        figurePlace.push(
+          this.initialFigureSetup,
+          this.initialFigureSetup + 1,
+          this.initialFigureSetup + this.rowSize + 1,
+          this.initialFigureSetup + this.rowSize + 2);
         break;
 
       case 'S':
-        this.board[boardPlace] = this.nextFigure;
-        this.board[boardPlace + 1] = this.nextFigure;
-        this.board[boardPlace + this.rowSize] = this.nextFigure;
-        this.board[boardPlace + this.rowSize - 1] = this.nextFigure;
+        figurePlace.push(
+          this.initialFigureSetup,
+          this.initialFigureSetup + 1,
+          this.initialFigureSetup + this.rowSize,
+          this.initialFigureSetup + this.rowSize - 1);
         break;
 
       case 'O':
-        this.board[boardPlace] = this.nextFigure;
-        this.board[boardPlace + 1] = this.nextFigure;
-        this.board[boardPlace + this.rowSize] = this.nextFigure;
-        this.board[boardPlace + this.rowSize + 1] = this.nextFigure;
+        figurePlace.push(
+          this.initialFigureSetup,
+          this.initialFigureSetup + 1,
+          this.initialFigureSetup + this.rowSize,
+          this.initialFigureSetup + this.rowSize + 1);
         break;
 
       case 'T':
-        this.board[boardPlace] = this.nextFigure;
-        this.board[boardPlace + this.rowSize - 1] = this.nextFigure;
-        this.board[boardPlace + this.rowSize] = this.nextFigure;
-        this.board[boardPlace + this.rowSize + 1] = this.nextFigure;
+        figurePlace.push(
+          this.initialFigureSetup,
+          this.initialFigureSetup + this.rowSize - 1,
+          this.initialFigureSetup + this.rowSize,
+          this.initialFigureSetup + this.rowSize + 1);
         break;
 
       case 'L':
-        this.board[boardPlace] = this.nextFigure;
-        this.board[boardPlace + 1] = this.nextFigure;
-        this.board[boardPlace + 2] = this.nextFigure;
-        this.board[boardPlace + this.rowSize] = this.nextFigure;
+        figurePlace.push(
+          this.initialFigureSetup,
+          this.initialFigureSetup + 1,
+          this.initialFigureSetup + 2,
+          this.initialFigureSetup + this.rowSize);
         break;
 
       case 'J':
-        this.board[boardPlace] = this.nextFigure;
-        this.board[boardPlace + 1] = this.nextFigure;
-        this.board[boardPlace + 2] = this.nextFigure;
-        this.board[boardPlace + this.rowSize + 2] = this.nextFigure;
+        figurePlace.push(
+          this.initialFigureSetup,
+          this.initialFigureSetup + 1,
+          this.initialFigureSetup + 2,
+          this.initialFigureSetup + this.rowSize + 2);
         break;
 
       case 'I':
-        for (let cellIndex = 0; cellIndex < this.figureLength; cellIndex++) {
-          this.board[boardPlace] = this.nextFigure;
-          boardPlace++;
-        }
+        figurePlace.push(
+          this.initialFigureSetup,
+          this.initialFigureSetup + 1,
+          this.initialFigureSetup + 2,
+          this.initialFigureSetup + 3);
         break;
       default:
         console.log('Unknown type');
         break;
     }
+
+    for (const cellIndex of figurePlace) {
+      if (this.board[cellIndex].isStuck) {
+        this.gameStart = false;
+        this.endGame.next(true);
+        return alert(`End! Your score: ${this.earnedPoints}`);
+      }
+      this.board[cellIndex] = this.nextFigure;
+    }
+
   }
 
   putFigure(initialSetup = false) {
@@ -310,6 +343,7 @@ export class TetrisComponent {
     if (!Directions[event.keyCode]) {
       return;
     }
+    event.preventDefault();
     switch (event.keyCode) {
       case Directions.RIGHT:
         this.nextFigure.directionStep = 1;

@@ -6,7 +6,7 @@
   <div *ngIf="gameStart && !showBoard">
     <label for="tfe-board-size__input" class="tfe-board-size__label">Enter the box size:
       {{boardSize}}x{{boardSize}}</label>
-    <input id="tfe-board-size__input" type="number" [(ngModel)]="boardSize" />
+    <input id="tfe-board-size__input" type="number" [(ngModel)]="boardSize" max="30" />
     <button class="tfe-board-size__apply" (click)="buildBoard(boardSize)">Apply</button>
   </div>
 
